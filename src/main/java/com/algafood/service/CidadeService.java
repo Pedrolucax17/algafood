@@ -1,36 +1,46 @@
 package com.algafood.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.algafood.domain.model.Cozinha;
-import com.algafood.domain.repository.CozinhaRepository;
+import com.algafood.domain.model.Cidade;
+import com.algafood.domain.model.Estado;
+import com.algafood.domain.repository.CidadeRepository;
+import com.algafood.domain.repository.EstadoRepository;
 import com.algafood.exceptions.EntidadeEmUsoException;
 import com.algafood.exceptions.EntidadeNaoEncontradaException;
 
 @Service
-public class CozinhaService {
+public class CidadeService {
+
+	@Autowired
+	private CidadeRepository repository;
 	
 	@Autowired
-	private CozinhaRepository repository;
+	private EstadoRepository estadoRepository;
 	
-	public Cozinha salvar(Cozinha cozinha){
-		return repository.salvar(cozinha);
+	public Cidade salvar(Cidade cidade) {
+		Long estadoId = cidade.getEstado().getId();
+		Estado estado = estadoRepository.buscar(estadoId);
+		
+		if(estado == null) {
+			throw new EntidadeNaoEncontradaException(
+					String.format("A entidde com o código %d não existe", estadoId)
+			);
+		}
+		
+		cidade.setEstado(estado);
+		
+		return repository.salvar(cidade);
+		
 	}
 	
-	public void remover(Long id) {
+public void remover(Long id) {
+		
 		try {
-			
-			repository.remover(id);
-			
+			repository.remover(id);		
 		}
 		catch(EmptyResultDataAccessException e) {
 			throw new EntidadeNaoEncontradaException(
@@ -41,6 +51,9 @@ public class CozinhaService {
 			throw new EntidadeEmUsoException(
 					String.format("Cozinha de código %d não pode ser removida, pois está em uso", id)
 			);
-		}
+		}	
+
 	}
+	
+	
 }

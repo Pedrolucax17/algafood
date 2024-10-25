@@ -43,7 +43,7 @@ public class CozinhaController {
 		Cozinha cozinha = repository.buscar(id);
 		
 		if(cozinha != null) {
-			return ResponseEntity.ok(repository.buscar(id));
+			return ResponseEntity.ok(cozinha);
 		}
 		
 		return ResponseEntity.notFound().build();
